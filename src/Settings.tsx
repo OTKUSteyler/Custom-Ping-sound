@@ -1,5 +1,5 @@
 import { storage } from "@vendetta/plugin";
-import { Button, FormRow, TextInput, Slider, Select } from "@vendetta/ui/components";
+import { Button, FormRow, TextInput, Slider, Select, FileInput } from "@vendetta/ui/components";
 import { useState, useEffect } from "react";
 import { Audio } from "@vendetta/ui/native";
 
@@ -21,11 +21,36 @@ export const SettingsPage = () => {
   const [soundUrl, setSoundUrl] = useState("");
   const [volume, setVolume] = useState(1); // Default to max volume
   const [context, setContext] = useState("DM");
+  const [file, setFile] = useState<File | null>(null);
+
+  // Handle the file input change
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+    }
+  };
+
+  // Handle the sound URL change
+  const handleSoundUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSoundUrl(e.target.value);
+  };
 
   // Handle setting save
   const handleSaveSettings = () => {
-    setCustomPingSound(context, soundUrl, volume);
-    setSoundUrl(""); // Clear the input field
+    if (file) {
+      // Handle the file upload case (convert to a URL or save the file to the plugin)
+      const fileUrl = URL.createObjectURL(file);
+      setCustomPingSound(context, fileUrl, volume);
+      setFile(null); // Clear the file input
+    } else if (soundUrl) {
+      // Handle the URL case
+      setCustomPingSound(context, soundUrl, volume);
+    } else {
+      alert("Please provide a valid sound URL or upload a sound file.");
+    }
+
+    setSoundUrl(""); // Clear the input fields
   };
 
   useEffect(() => {
@@ -43,11 +68,19 @@ export const SettingsPage = () => {
       <FormRow label="Sound URL">
         <TextInput 
           value={soundUrl} 
-          onChange={(e) => setSoundUrl(e.target.value)} 
+          onChange={handleSoundUrlChange} 
           placeholder="Enter Sound URL"
         />
       </FormRow>
-      
+
+      <FormRow label="Upload Sound File">
+        <FileInput 
+          accept="audio/*" 
+          onChange={handleFileChange} 
+          placeholder="Choose a sound file"
+        />
+      </FormRow>
+
       <FormRow label="Volume">
         <Slider
           value={volume}

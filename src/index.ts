@@ -1,6 +1,6 @@
 import { storage } from "@vendetta/plugin";
 import { registerSettings } from "@vendetta/settings";
-import { SettingsPage } from "./settings"; // Import the SettingsPage component from settings.ts
+import { SettingsPage } from "./Settings"; // Import the SettingsPage component from settings.ts
 
 // Default storage setup
 storage.customPingSounds = storage.customPingSounds ?? {};
